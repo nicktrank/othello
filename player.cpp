@@ -10,6 +10,7 @@ Player::Player(Side side) {
     testingMinimax = false;
 
     /* CHANGE 1 NICK TRANK */
+    /* CHANGE 2 ED CHU*/
      
     /*
      * TODO: Do any initialization you need to do here (setting up the board,
