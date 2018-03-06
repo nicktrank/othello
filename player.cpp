@@ -17,11 +17,6 @@ Player::Player(Side side) {
     else
         opp_side = WHITE;
     game = new Board();
-    /*
-     * TODO: Do any initialization you need to do here (setting up the board,
-     * precalculating things, etc.) However, remember that you will only have
-     * 30 seconds.
-     */
 }
 
 /*
@@ -54,18 +49,33 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     if (! game->hasMoves(curr_side))
         return nullptr;
     Move *move;
+    int best_x;
+    int best_y;
+    Board *temp_board;
+    int move_score = 0;
+    int curr_max = -9999;
     for (int i = 0; i < 8; i++)
     {
         for (int j = 0; j < 8; j++)
         {
+            temp_board = game->copy();
             move = new Move(i, j);
-            if (game->checkMove(move, curr_side))
+            if (temp_board->checkMove(move, curr_side))
             {
-                game->doMove(move, curr_side);
-                return move;
+                temp_board->doMove(move, curr_side);
+                move_score = temp_board->count(curr_side) - game->count(curr_side);
+                
+                if (move_score > curr_max)
+                {
+                    best_x = i;
+                    best_y = j;
+                }
             }
+            delete temp_board;
             delete move;
         }
     }
-    return nullptr;
+    move = new Move(best_x, best_y);
+    game->doMove(move, curr_side);
+    return move;
 }
