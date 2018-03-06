@@ -28,6 +28,7 @@ Player::Player(Side side) {
  * Destructor for the player.
  */
 Player::~Player() {
+    delete game;
 }
 
 /*
@@ -49,8 +50,22 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * process the opponent's opponents move before calculating your own move
      */
     
-    game.doMove(opponentsMove, opp_side);
-    if (! game_board.hasMoves(curr_Side))
+    game->doMove(opponentsMove, opp_side);
+    if (! game->hasMoves(curr_side))
         return nullptr;
+    Move *move;
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            move = new Move(i, j);
+            if (game->checkMove(move, curr_side))
+            {
+                game->doMove(move, curr_side);
+                return move;
+            }
+            delete move;
+        }
+    }
     return nullptr;
 }
