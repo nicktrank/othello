@@ -64,7 +64,16 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
             {
                 temp_board->doMove(move, curr_side);
                 move_score = temp_board->count(curr_side) - game->count(curr_side);
-                
+                /* ADD THESE LINES */
+                if ((i == 0 && (j == 0 || j == 7)) || (i == 7 && (j == 0 && j == 7)))
+                    move_score = move_score * 3;
+                else if (i+j == 1 || i+j == 13 || (i == 0 && j == 6) || (i == 6 && j == 0) || (i == 7 && j == 1) || (i == 1 && j == 7))
+                    move_score = move_score * -1;
+                else if ((i == j && (i == 1 || i == 6)) || (i == 6 && j == 1) || (i == 1 && j == 6))
+                    move_score = move_score * -2;
+                else if (i == 0 || i == 7 || j == 0 || j == 7)
+                    move_score = move_score * 2;
+                /* END NEW PORTION */
                 if (move_score > curr_max)
                 {
                     best_x = i;
