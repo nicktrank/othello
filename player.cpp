@@ -11,7 +11,12 @@ Player::Player(Side side) {
 
     /* CHANGE 1 NICK TRANK */
     /* CHANGE 2 ED CHU*/
-     
+    curr_side = side; 
+    if (curr_side == WHITE)
+        opp_side = BLACK;
+    else
+        opp_side = WHITE;
+    game = new Board();
     /*
      * TODO: Do any initialization you need to do here (setting up the board,
      * precalculating things, etc.) However, remember that you will only have
@@ -43,5 +48,9 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * TODO: Implement how moves your AI should play here. You should first
      * process the opponent's opponents move before calculating your own move
      */
+    
+    game.doMove(opponentsMove, opp_side);
+    if (! game_board.hasMoves(curr_Side))
+        return nullptr;
     return nullptr;
 }
