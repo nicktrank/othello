@@ -38,11 +38,31 @@ Player::~Player() {
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-    /*
-     * TODO: Implement how moves your AI should play here. You should first
-     * process the opponent's opponents move before calculating your own move
-     */
     return doHeuristicMove(opponentsMove, msLeft);
+    game->doMove(opponentsMove, opp_side);
+    if (! game->hasMoves(curr_side))
+        return nullptr;
+    int best_x;
+    int best_y;
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            temp_board = game->copy();
+            move = new Move(i, j);
+            if (temp_board->checkMove(move, curr_side))
+            {
+            }
+        }
+    }
+
+}
+
+Move *Player::findBestMove(Board *curr_board, Side s)
+{
+    int best_x;
+    int best_y;
+    
 }
 
 Move *Player::doHeuristicMove(Move *opponentsMove, int msLeft) {
