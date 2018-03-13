@@ -9,8 +9,6 @@ Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
 
-    /* CHANGE 1 NICK TRANK */
-    /* CHANGE 2 ED CHU*/
     curr_side = side; 
     if (curr_side == WHITE)
         opp_side = BLACK;
@@ -44,7 +42,10 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * TODO: Implement how moves your AI should play here. You should first
      * process the opponent's opponents move before calculating your own move
      */
-    
+    return doHeuristicMove(opponentsMove, msLeft);
+}
+
+Move *Player::doHeuristicMove(Move *opponentsMove, int msLeft) {
     game->doMove(opponentsMove, opp_side);
     if (! game->hasMoves(curr_side))
         return nullptr;
@@ -63,15 +64,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
             if (temp_board->checkMove(move, curr_side))
             {
                 temp_board->doMove(move, curr_side);
-                move_score = temp_board->count(curr_side) - game->count(curr_side);
-                if ((i == 0 && (j == 0 || j == 7)) || (i == 7 && (j == 0 && j == 7)))
-                    move_score = move_score * 3;
-                else if (i+j == 1 || i+j == 13 || (i == 0 && j == 6) || (i == 6 && j == 0) || (i == 7 && j == 1) || (i == 1 && j == 7))
-                    move_score = move_score * -1;
-                else if ((i == j && (i == 1 || i == 6)) || (i == 6 && j == 1) || (i == 1 && j == 6))
-                    move_score = move_score * -2;
-                else if (i == 0 || i == 7 || j == 0 || j == 7)
-                    move_score = move_score * 2;
+                move_score = temp_board->count(curr_side)-game->count(curr_side);
                 if (move_score > curr_max)
                 {
                     best_x = i;

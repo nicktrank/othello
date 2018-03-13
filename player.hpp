@@ -13,6 +13,7 @@ public:
     ~Player();
 
     Move *doMove(Move *opponentsMove, int msLeft);
+    Move *doHeuristicMove(Move *opponentsMove, int msLeft);
     Side curr_side;
     Side opp_side;
     Board *game;
