@@ -42,8 +42,12 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     game->doMove(opponentsMove, opp_side);
     if (! game->hasMoves(curr_side))
         return nullptr;
+    Move *move;
+    Board *temp_board;
     int best_x;
     int best_y;
+    int move_score = 0;
+    int curr_max = -9999;
     for (int i = 0; i < 8; i++)
     {
         for (int j = 0; j < 8; j++)
@@ -52,17 +56,52 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
             move = new Move(i, j);
             if (temp_board->checkMove(move, curr_side))
             {
+                temp_board->doMove(move, curr_side);
+                temp_board->doMove(findBestMove(temp_board, opp_side), opp_side);
+                move_score = temp_board->count(curr_side)-game->count(curr_side);
+                if (move_score > curr_max)
+                {
+                    best_x = i;
+                    best_y = j;
+                }
             }
+            delete move;
         }
     }
-
+    move = new Move(best_x, best_y);
+    return move;
 }
 
 Move *Player::findBestMove(Board *curr_board, Side s)
 {
+    Move *move;
     int best_x;
     int best_y;
-    
+    Board *temp_board;
+    int move_score = 0;
+    int curr_max = -9999;
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            temp_board = curr_board->copy();
+            move = new Move(i,j);
+            if (temp_board->checkMove(move, s))
+            {
+                temp_board->doMove(move, s);
+                move_score = temp_board->count(s) - curr_board->count(s);
+                if (move_score > curr_max)
+                {
+                    best_x = i;
+                    best_y = j;
+                }
+            }
+            //delete temp_board;
+            delete move;
+        }
+    }
+    move = new Move(best_x, best_y);
+    return move;
 }
 
 Move *Player::doHeuristicMove(Move *opponentsMove, int msLeft) {

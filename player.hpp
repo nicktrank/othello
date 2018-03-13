@@ -14,6 +14,7 @@ public:
 
     Move *doMove(Move *opponentsMove, int msLeft);
     Move *doHeuristicMove(Move *opponentsMove, int msLeft);
+    Move *findBestMove(Board *curr_board, Side s);
     Side curr_side;
     Side opp_side;
     Board *game;
