@@ -15,6 +15,8 @@ public:
     Move *doMove(Move *opponentsMove, int msLeft);
     Move *doHeuristicMove(Move *opponentsMove, int msLeft);
     Move *findBestMove(Board *curr_board, Side s);
+    int mobilityScore(Move *move, Side mover, Side result);
+    int moveScore(Move *move, Side mover);
     Side curr_side;
     Side opp_side;
     Board *game;

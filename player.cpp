@@ -46,9 +46,9 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     if (! game->hasMoves(curr_side))
         return nullptr;
     Move *move;
-    Board *temp_board;
-    int best_x;
-    int best_y;
+    Board *temp_board = game->copy();
+    int best_x = 0;
+    int best_y = 0;
     int move_score = 0;
     int curr_max = -9999;
     for (int i = 0; i < 8; i++)
@@ -84,14 +84,15 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     return move;
 }
 
+//find best move based on immediate score
 Move *Player::findBestMove(Board *curr_board, Side s)
 {
     Move *move;
-    int best_x;
-    int best_y;
-    Board *temp_board;
+    int best_x=0;
+    int best_y=0;
+    Board *temp_board = curr_board->copy();
     int move_score = 0;
-    int curr_max = -9999;
+    int curr_max = temp_board->count(s) - curr_board->count(s);
     for (int i = 0; i < 8; i++)
     {
         for (int j = 0; j < 8; j++)
@@ -117,6 +118,63 @@ Move *Player::findBestMove(Board *curr_board, Side s)
     return move;
 }
 
+//gives the overall score of a move accounting for all implemented factors
+int Player::moveScore(Move *move, Side mover)
+{
+    int score=0;
+    if(game->copy()->checkMove(move, mover))
+    {
+        return -1;
+    }
+    else
+    {
+        if ((move->getX()==0 && (move->getY()==0 || move->getY()==7)) || (move->getX()==7 && (move->getY()==0 || move->getY()==7)))
+        {
+            score = score + 20;
+        }
+        else if ((move->getX()<2 && (move->getY()<2 || move->getY()>5)) || (move->getX()>5 && (move->getY()<2 || move->getY()>5)))
+        {
+            score = score - 15;
+        }
+        else if(move->getY()==0 || move->getY()==7 || move->getX()==0 || move->getX()==7)
+        {
+            score = score + 5;
+        }
+        score = score + mobilityScore(move, mover, mover);
+        return score;
+    }
+}
+
+//checks number of available moves side "result" has after side "mover" does *move and returns
+//returns -1 if move not valid
+int Player::mobilityScore(Move *move, Side mover, Side result)
+{
+    int score = 0;
+    Board *temp_board = game->copy();
+    if (!temp_board->checkMove(move, mover))
+    {
+        return -1;
+    }
+    else
+    {
+        temp_board->doMove(move, mover);
+        for(int i=0; i<8; i++)
+        {
+            for(int j=0; j<8; j++)
+            {
+                Move* testMove = new Move(i,j);
+                if(temp_board->checkMove(testMove, result))
+                {
+                    score++;
+                }
+                delete testMove;
+            }
+        }
+    }
+    return score;
+}
+
+//do move based on immediate score
 Move *Player::doHeuristicMove(Move *opponentsMove, int msLeft) {
     game->doMove(opponentsMove, opp_side);
     if (! game->hasMoves(curr_side))
