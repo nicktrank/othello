@@ -8,7 +8,6 @@
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
-
     curr_side = side; 
     if (curr_side == WHITE)
         opp_side = BLACK;
@@ -38,7 +37,11 @@ Player::~Player() {
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-    return doHeuristicMove(opponentsMove, msLeft);
+    //return doHeuristicMove(opponentsMove, msLeft);
+    //if (opponentsMove != nullptr)
+        //std::cerr << "OPPONENT DOES "<< opponentsMove->x << " " << opponentsMove->y << std::endl;
+    if (opponentsMove == nullptr)
+        std::cerr << "opponent out of moves" << std::endl;
     game->doMove(opponentsMove, opp_side);
     if (! game->hasMoves(curr_side))
         return nullptr;
@@ -56,19 +59,28 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
             move = new Move(i, j);
             if (temp_board->checkMove(move, curr_side))
             {
+                //std::cerr << "trying valid move: " << i << " " << j << std::endl;
                 temp_board->doMove(move, curr_side);
-                temp_board->doMove(findBestMove(temp_board, opp_side), opp_side);
+                Move *opp_move = findBestMove(temp_board, opp_side);
+                //std::cerr << "opponent would do: " << opp_move->x << " " << opp_move->y << std::endl;
+                temp_board->doMove(opp_move, opp_side);
                 move_score = temp_board->count(curr_side)-game->count(curr_side);
+                //std::cerr << "score would be: " << move_score << std::endl;
                 if (move_score > curr_max)
                 {
+                    curr_max = move_score;
                     best_x = i;
                     best_y = j;
                 }
             }
             delete move;
+            delete temp_board;
         }
     }
     move = new Move(best_x, best_y);
+    //std::cerr << "OUR MOVE: " << best_x << " " << best_y << std::endl;
+    //std::cerr << "NEXT MOVE" << std::endl;
+    game->doMove(move, curr_side);
     return move;
 }
 
@@ -92,6 +104,7 @@ Move *Player::findBestMove(Board *curr_board, Side s)
                 move_score = temp_board->count(s) - curr_board->count(s);
                 if (move_score > curr_max)
                 {
+                    curr_max = move_score;
                     best_x = i;
                     best_y = j;
                 }
@@ -126,6 +139,7 @@ Move *Player::doHeuristicMove(Move *opponentsMove, int msLeft) {
                 move_score = temp_board->count(curr_side)-game->count(curr_side);
                 if (move_score > curr_max)
                 {
+                    curr_max = move_score;
                     best_x = i;
                     best_y = j;
                 }
