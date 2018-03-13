@@ -40,8 +40,6 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     //return doHeuristicMove(opponentsMove, msLeft);
     //if (opponentsMove != nullptr)
         //std::cerr << "OPPONENT DOES "<< opponentsMove->x << " " << opponentsMove->y << std::endl;
-    if (opponentsMove == nullptr)
-        std::cerr << "opponent out of moves" << std::endl;
     game->doMove(opponentsMove, opp_side);
     if (! game->hasMoves(curr_side))
         return nullptr;
@@ -59,12 +57,11 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
             move = new Move(i, j);
             if (temp_board->checkMove(move, curr_side))
             {
-                //std::cerr << "trying valid move: " << i << " " << j << std::endl;
-                temp_board->doMove(move, curr_side);
-                Move *opp_move = findBestMove(temp_board, opp_side);
-                //std::cerr << "opponent would do: " << opp_move->x << " " << opp_move->y << std::endl;
-                temp_board->doMove(opp_move, opp_side);
-                move_score = temp_board->count(curr_side)-game->count(curr_side);
+                move_score = moveScore(temp_board, move, curr_side);
+                //temp_board->doMove(move, curr_side);
+                //Move *opp_move = findBestMove(temp_board, opp_side);
+                //temp_board->doMove(opp_move, opp_side);
+                //move_score = temp_board->count(curr_side)-game->count(curr_side);
                 //std::cerr << "score would be: " << move_score << std::endl;
                 if (move_score > curr_max)
                 {
@@ -78,8 +75,6 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         }
     }
     move = new Move(best_x, best_y);
-    //std::cerr << "OUR MOVE: " << best_x << " " << best_y << std::endl;
-    //std::cerr << "NEXT MOVE" << std::endl;
     game->doMove(move, curr_side);
     return move;
 }
@@ -119,12 +114,12 @@ Move *Player::findBestMove(Board *curr_board, Side s)
 }
 
 //gives the overall score of a move accounting for all implemented factors
-int Player::moveScore(Move *move, Side mover)
+int Player::moveScore(Board *board, Move *move, Side s)
 {
-    int score=0;
-    if(game->copy()->checkMove(move, mover))
+    int score = 0;
+    if(!board->checkMove(move, s))
     {
-        return -1;
+        return -9999;
     }
     else
     {
@@ -140,30 +135,47 @@ int Player::moveScore(Move *move, Side mover)
         {
             score = score + 5;
         }
-        score = score + mobilityScore(move, mover, mover);
+        score = score - mobilityScore(board, move, curr_side, opp_side) + minmaxScore(board, move, curr_side, opp_side);
         return score;
     }
 }
 
-//checks number of available moves side "result" has after side "mover" does *move and returns
+//checks the worst case from doing 'move' when assumed the opposite side
+//only looks at the current board to decide its best move (no depth)
+int Player::minmaxScore(Board *board, Move *move, Side mover, Side opp)
+{
+    Board *temp_board = board->copy();
+    if (!temp_board->checkMove(move, mover))
+        return -9999;
+    else
+    {
+        temp_board->doMove(move, mover);
+        Move *best_opp_move = findBestMove(temp_board, opp);
+        temp_board->doMove(best_opp_move, opp);
+        return temp_board->count(mover)-board->count(mover);
+    }
+}
+
+//checks number of available moves side "opp" has after side "mover" does *move and returns
 //returns -1 if move not valid
-int Player::mobilityScore(Move *move, Side mover, Side result)
+int Player::mobilityScore(Board *board, Move *move, Side mover, Side opp)
 {
     int score = 0;
-    Board *temp_board = game->copy();
+    Board *temp_board = board->copy();
     if (!temp_board->checkMove(move, mover))
     {
-        return -1;
+        return -9999;
     }
     else
     {
+        Move *testMove;
         temp_board->doMove(move, mover);
         for(int i=0; i<8; i++)
         {
             for(int j=0; j<8; j++)
             {
-                Move* testMove = new Move(i,j);
-                if(temp_board->checkMove(testMove, result))
+                testMove = new Move(i,j);
+                if(temp_board->checkMove(testMove, opp))
                 {
                     score++;
                 }
